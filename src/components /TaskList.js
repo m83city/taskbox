@@ -1,11 +1,35 @@
 import React from "react";
 import Task from "./Task";
+import { updateTaskState } from "../lib/store";
+import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types"
 
-export default function TaskList({ loading, tasks, onPinTask, onArchiveTask }) {
-    const event = {
-        onPinTask,
-        onArchiveTask
+export default function TaskList() {
+
+    const tasks = useSelector((state) => {
+        const tasksInOrder = [
+            ...state.taskbox.tasks.filter((t) => t.state === 'TASK_PINNED'),
+            ...state.taskbox.tasks.filter((t) => t.state !== 'TASK_PINNED')
+
+            /*         //тут  викликаєтьс-я 2 фільтра щоб спочатку з загального масиву витягнути pinned елементи а потім усі окрім  pinned і додаємо ї в масив
+            ...tasks.filter((t) => t.state === "TASK_PINNED"),//all pined elements
+            ...tasks.filter((t) => t.state !== "TASK_PINNED"),//all non-pinned elemets
+     */
+        ];
+        const filteredTask = tasksInOrder.filter(
+            (t) => t.state === 'TASK_INBOX' || t.state === 'TASK_PINNED'
+        );
+        return filteredTask
+
+    });
+    const { status } = useSelector((state) => state.taskbox);
+    console.log(status)
+    const dispatch = useDispatch();
+    const pinTask = (value) => {
+        dispatch(updateTaskState({ id: value, newTaskState: 'TASK_PINNED' }));
+    }
+    const archiveTask = (value) => {
+        dispatch(updateTaskState({ id: value, newTaskState: 'TASK_ARCHIVED' }));
     }
     const LoadingRow = (//елемент блока завантаження з стилями
         <div className="loading-item">
@@ -15,8 +39,7 @@ export default function TaskList({ loading, tasks, onPinTask, onArchiveTask }) {
             </span>
         </div>
     );
-
-    if (loading) {//блок який показує завантаження 
+    if (status === 'loading') {//блок який показує завантаження 
         return (
             <div className="list-items" data-testid="loading" key={"loading"} >
                 {LoadingRow}
@@ -28,7 +51,7 @@ export default function TaskList({ loading, tasks, onPinTask, onArchiveTask }) {
             </div>
         )
     }
-    if (tasks.length === 0) {// блок який показує що відсутні таски 
+    if (status === 0) {// блок який показує що відсутні таски 
         return (
             <div className="list-items" key={'empty'} data-testid="empty" >
                 <div className='wrapper-message'>
@@ -39,16 +62,17 @@ export default function TaskList({ loading, tasks, onPinTask, onArchiveTask }) {
             </div>
         )
     }
-    const tasksInOrder = [
-        //тут  викликаєтьс-я 2 фільтра щоб спочатку з загального масиву витягнути pinned елементи а потім усі окрім  pinned і додаємо ї в масив
-        ...tasks.filter((t) => t.state === "TASK_PINNED"),//all pined elements
-        ...tasks.filter((t) => t.state !== "TASK_PINNED"),//all non-pinned elemets
-    ];
     return (
 
         <div className="list-items">
-            {tasksInOrder.map(task => (
-                <Task key={task.id} task={task} {...event} />
+            {
+            tasks.map(task => (
+                <Task
+                    key={task.id}
+                    task={task}
+                    onPinTask={(task) => pinTask(task)}
+                    onArchiveTask={(task) => archiveTask(task)}
+                />
             ))}
         </div>
     )
