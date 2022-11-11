@@ -16,6 +16,8 @@ export const MockedState = {
     status: 'idle',
     error: null
 };
+
+/*super store */
 const Mockstore = ({ taskboxState, children }) => (
     <Provider
         store={configureStore({
