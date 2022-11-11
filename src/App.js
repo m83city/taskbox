@@ -1,37 +1,15 @@
-import logo from './logo.svg';
 import './App.css';
-import Task from './components /Task';
+import './index.css'
+import store from './lib/store';
 import { useState } from 'react';
+import { Provider } from 'react-redux';
+import InboxScreen from './components /InboxScreen';
 
 function App() {
-  const [state, setState] = useState({
-    task: {
-      id: "1",
-      title: "Supertask",
-      state: "TASK_PINNED"
-    },
-    onPinTask: ()=>console.log("onPinned"),
-    onArchiveTask: ()=>{console.log("onArchove")}
-  }
-  );
   return (
-    <div className="App">
-      <Task {...state} />
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Provider store={store}>
+        <InboxScreen/>
+    </Provider>
   );
 }
 
